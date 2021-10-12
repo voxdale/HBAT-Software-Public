@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <BluetoothSerial.h>
-#include "HMS.h"
-#include "Adafruit_SHT31.h"
-#include "ACS712.h"
+#include <HMS.h>
+#include <Humidity.h>
 
 #define DEBUG 0
 
@@ -10,37 +9,8 @@
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
 #define debugf(x) Serial.printf(x)
-#define debugCalibrateAmps()
-void calibrateAmps()
-{
-  if (SerialBT.available())
-  {
-    char c = SerialBT.read();
-    switch (c)
-    {
-    case '+':
-      ACS.incMidPoint();
-      break;
-    case '-':
-      ACS.decMidPoint();
-      break;
-    case '0':
-      ACS.setMidPoint(512);
-      SerialBT.print("," + ACS.getMidPoint());
-      break;
-    case '*':
-      ACS.setmVperAmp(ACS.getmVperAmp() * 1.05);
-      break;
-    case '/':
-      ACS.setmVperAmp(ACS.getmVperAmp() / 1.05);
-      SerialBT.print("," + ACS.getmVperAmp());
-      break;
-    default:
-      SerialandBT("No input detected");
-    }
-  }
-  delay(1000);
-}
+#define debugCalibrateAmps() HMSmain.calibrateAmps()
+
 #else
 #define debug(x)
 #define debugln(x)
@@ -50,20 +20,16 @@ void calibrateAmps()
 
 #define LED1 12
 #define LED2 9
-#define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP 30       /* Time ESP32 will go to sleep (in seconds) */
-bool runningState;
 
-// ACS712 5A  uses 185 mV per A
-// ACS712 20A uses 100 mV per A
-// ACS712 30A uses  66 mV per A
+/* #define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
+/* #define TIME_TO_SLEEP 30    */ /* Time ESP32 will go to sleep (in seconds) */
 
-RTC_DATA_ATTR int bootCount = 0;
+/* RTC_DATA_ATTR int bootCount = 0; */
 
 //Method to print the reason by which ESP32
 //has been awaken from sleep
 
-void print_wakeup_reason()
+/* void print_wakeup_reason()
 {
   runningState = true;
   esp_sleep_wakeup_cause_t wakeup_reason;
@@ -73,38 +39,31 @@ void print_wakeup_reason()
   switch (wakeup_reason)
   {
   case ESP_SLEEP_WAKEUP_EXT0:
-    Serial.println("Wakeup caused by external signal using RTC_IO");
+    Serial.printf("Wakeup caused by external signal using RTC_IO");
     break;
   case ESP_SLEEP_WAKEUP_EXT1:
-    Serial.println("Wakeup caused by external signal using RTC_CNTL");
+    Serial.printf("Wakeup caused by external signal using RTC_CNTL");
     break;
   case ESP_SLEEP_WAKEUP_TIMER:
-    Serial.println("Wakeup caused by timer");
+    Serial.printf("Wakeup caused by timer");
     break;
   case ESP_SLEEP_WAKEUP_TOUCHPAD:
-    Serial.println("Wakeup caused by touchpad");
+    Serial.printf("Wakeup caused by touchpad");
     break;
   case ESP_SLEEP_WAKEUP_ULP:
-    Serial.println("Wakeup caused by ULP program");
+    Serial.printf("Wakeup caused by ULP program");
     break;
   default:
-    debugf("Wakeup was not caused by deep sleep: %d\n" + wakeup_reason);
+    Serial.println("Wakeup was not caused by deep sleep: %d\n" + wakeup_reason);
     break;
   }
-}
-
-uint8_t _amppin = 18;
-ACS712 ACS(_amppin, 5.0, 4095, 100);
-// ESP 32 example (requires resistors to step down the logic voltage)
-//ACS712  ACS(25, 5.0, 4095, 185);
+} */
 
 HMS HMSmain = HMS();
-
+Humidity Hum = Humidity();
 BluetoothSerial SerialBT;
 
 int received;
-
-Adafruit_SHT31 sht31 = Adafruit_SHT31();
 
 /* void led2OnOff(int time)
 {
@@ -116,12 +75,10 @@ Adafruit_SHT31 sht31 = Adafruit_SHT31();
 
 void ledFade(int LED)
 {
-  runningState = true;
   int freq = 1000;
   int ledChannel = 0;
   int resolution = 16;
   int dutyCycle = 0;
-
   ledcSetup(ledChannel, freq, resolution);
   ledcAttachPin(LED, ledChannel);
   dutyCycle = map(3, 0, 4095, 0, 32767);
@@ -145,10 +102,6 @@ void ledFade(int LED)
 
 void SerialandBT(String data)
 {
-  runningState = true;
-/* #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` enable it
-#endif */
   bool BTwritestate = false;
   if (BTwritestate = true)
   {
@@ -167,18 +120,9 @@ void SerialandBT(String data)
   }
 }
 
-void readAmps()
-{
-  runningState = 1;
-  int mA = ACS.mA_DC();
-  String Amps = String(mA);
-  SerialandBT(Amps);
-}
-
 void floattostring()
 {
-  runningState = true;
-  float *climatedata = HMSmain.climate();
+  float *climatedata = Hum.ReadSensor();
   char climateData[100];
   sprintf(climateData, "%3d, %3d", climatedata[0], climatedata[1]);
   SerialandBT(climateData);
@@ -196,14 +140,14 @@ void floattostring()
 
 void setup()
 {
-  runningState = true;
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   Serial.begin(115200);
   while (!Serial)
     delay(10); // will pause Zero, Leonardo, etc until serial console opens
-
-  +bootCount;
+  Hum.setupSensor();
+  HMSmain.setupSensor();
+  /* +bootCount;
   char bootChar[100];
   sprintf(bootChar, "Boot number: %s", String(bootCount));
   debugf(bootChar);
@@ -217,21 +161,13 @@ void setup()
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   char sleeptime[1];
   sprintf(sleeptime, "Setup ESP32 to sleep for every ", String(TIME_TO_SLEEP) + " Seconds");
-  debugf(sleeptime);
+  debugf(sleeptime); */
   debugf("HMS booting - please wait");
-  if (!sht31.begin(0x44))
-  { // Set to 0x45 for alternate i2c addr
-    debugf("Couldn't find SHT31");
-    while (1)
-      delay(1);
-  }
   SerialBT.begin("ESP32_HMS");
   debugf("Device now Discoverable");
-  debugf(__FILE__);
-  ACS.autoMidPoint();
+  //debugf(__FILE__);
   debugf("Setup Complete");
   delay(100);
-
   /*
   Next we decide what all peripherals to shut down/keep on
   By default, ESP32 will automatically power down the peripherals
@@ -247,26 +183,24 @@ void setup()
   deep sleep.
   In the case that no wake up sources were provided but deep
   sleep was started, it will sleep forever unless hardware
-  reset occurs
-  
+  reset occurs*/
+  //Serial.flush();
+  /* if (!runningState)
+  {
+    esp_deep_sleep_start();
+  } */
+}
 
-  ledtestOnOff(500); //comment out when not testing - Blink led from Unity Terminal over BTSerial */
+void loop()
+{
+  Hum.ReadSensor();
+  HMSmain.readAmps();
+  //ledtestOnOff(500); //comment out when not testing - Blink led from Unity Terminal over BTSerial
   SerialandBT("Connection Successful");
   delay(100);
   floattostring();
   delay(100);
   debugCalibrateAmps(); // only needed for manual calibration of sensor
-  debugf("Going to sleep now");
+  //debugf("Going to sleep now");
   delay(100);
-  runningState = false;
-  Serial.flush();
-  if (!runningState)
-  {
-    esp_deep_sleep_start();
-  }
-}
-
-void loop()
-{
-  //block does not execute
 }

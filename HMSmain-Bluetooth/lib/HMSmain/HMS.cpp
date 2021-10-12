@@ -4,28 +4,21 @@
 #include <Adafruit_SHT31.h>
 #include <HMS.h>
 #include <Arduino.h>
+#include <Humidity.h>
+
+uint8_t _amppin = 18;
+ACS712 ACS(_amppin, 5.0, 4095, 100);
+
+// ESP 32 example (requires resistors to step down the logic voltage)
+//ACS712  ACS(25, 5.0, 4095, 185);
+
+int voltageValues[10];
 
 HMS::HMS()
 {
 }
 
-int voltageValues[10];
-
-//float input_voltage;
-
-Adafruit_SHT31 sht31 = Adafruit_SHT31();
-byte degree[8] =
-    {
-        0b00011,
-        0b00011,
-        0b00000,
-        0b00000,
-        0b00000,
-        0b00000,
-        0b00000,
-        0b00000};
-
-float readVoltage(int pinnumber)
+float HMS::readVoltage(int pinnumber)
 {
     return (float)((analogRead(pinnumber) * 5.0) / 1024.0);
 }
@@ -102,33 +95,49 @@ float *HMS::readSensAndCondition()
 // DO STUFF
 //}
 
-float *HMS::climate()
+// ACS712 5A  uses 185 mV per A
+// ACS712 20A uses 100 mV per A
+// ACS712 30A uses  66 mV per A
+void HMS::setupSensor()
 {
-    float t = sht31.readTemperature();
-    float h = sht31.readHumidity();
+    ACS.autoMidPoint();
+}
 
-    float climatedata[2];
+float HMS::*readAmps()
+{
+    int mA = ACS.mA_DC();
+    String Amps = String(mA);
+    //SerialandBT(Amps);
+    Serial.println("," + Amps);
+}
 
-    if (!isnan(t))
-    { // check if 'is not a number'
-        Serial.print("Temp *C = ");
-        climatedata[0] = t;
-    }
-    else
+void HMS::calibrateAmps()
+{
+    if (Serial.available())
     {
-        Serial.println("Failed to read temperature");
+        char c = Serial.read();
+        switch (c)
+        {
+        case '+':
+            ACS.incMidPoint();
+            break;
+        case '-':
+            ACS.decMidPoint();
+            break;
+        case '0':
+            ACS.setMidPoint(512);
+            Serial.print("," + ACS.getMidPoint());
+            break;
+        case '*':
+            ACS.setmVperAmp(ACS.getmVperAmp() * 1.05);
+            break;
+        case '/':
+            ACS.setmVperAmp(ACS.getmVperAmp() / 1.05);
+            //SerialBT.print("," + ACS.getmVperAmp());
+            break;
+        default:
+            Serial.printf("No input detected");
+        }
     }
-
-    if (!isnan(h))
-    { // check if 'is not a number'
-        Serial.print("Hum. % = ");
-        climatedata[1] = h;
-    }
-    else
-    {
-        Serial.println("Failed to read humidity");
-    }
-    Serial.println();
     delay(1000);
-    return climatedata;
 }

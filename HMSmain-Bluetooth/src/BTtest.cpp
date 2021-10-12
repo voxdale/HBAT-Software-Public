@@ -163,7 +163,7 @@ void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         message = "";
       }
       Serial.write(c);
-      Serial.println(message);
+      debugln(message);
     }
   }
 
