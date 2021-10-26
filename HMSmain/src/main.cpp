@@ -3,11 +3,8 @@
 #include <HMS.h>
 #include <Humidity.h>
 #include <Battery.h>
-#include <LITTLEFS.h>
 
 
-// if we cannot mount the LittleFS disk, shall we format one?
-#define FORMAT_LITTLEFS_IF_FAILED false
 #define DEBUG 0
 
 #if DEBUG == 1
@@ -66,7 +63,7 @@
 
 HMS HMSmain = HMS();
 Humidity Hum = Humidity();
-BluetoothSerial SerialBT;
+/* BluetoothSerial SerialBT; */
 
 int received;
 Battery battery(1000, 3300, A0);
@@ -79,7 +76,7 @@ Battery battery(1000, 3300, A0);
   delay(time);
 } */
 
-void ledFade(int LED)
+/* void ledFade(int LED)
 {
   int freq = 1000;
   int ledChannel = 0;
@@ -104,9 +101,9 @@ void ledFade(int LED)
     ledcWrite(ledChannel, dutyCycle);
     delay(15);
   }
-}
+} */
 
-void SerialandBT(String data)
+/* void SerialandBT(String data)
 {
   bool BTwritestate = false;
   if (BTwritestate = true)
@@ -124,14 +121,14 @@ void SerialandBT(String data)
     }
     Serial.print(data);
   }
-}
+} */
 
 void floattostring()
 {
   float *climatedata = Hum.ReadSensor();
   char climateData[100];
   sprintf(climateData, "%3d, %3d", climatedata[0], climatedata[1]);
-  SerialandBT(climateData);
+  /* SerialandBT(climateData); */
 
   String voltageaverage = "";
   float *readvoltage = HMSmain.readSensAndCondition();
@@ -141,7 +138,7 @@ void floattostring()
     sprintf(temp, "%s, %3f", voltageaverage, readvoltage[i]);
     voltageaverage = temp;
   }
-  SerialandBT(voltageaverage);
+  /* SerialandBT(voltageaverage); */
 }
 
 void setup()
@@ -172,7 +169,7 @@ void setup()
   sprintf(sleeptime, "Setup ESP32 to sleep for every ", String(TIME_TO_SLEEP) + " Seconds");
   debugf(sleeptime); */
   debugf("HMS booting - please wait");
-  SerialBT.begin("ESP32_HMS");
+  /* SerialBT.begin("ESP32_HMS"); */
   debugf("Device now Discoverable");
   //debugf(__FILE__);
   debugf("Setup Complete");
@@ -205,7 +202,7 @@ void loop()
   Hum.ReadSensor();
   HMSmain.readAmps();
   //ledtestOnOff(500); //comment out when not testing - Blink led from Unity Terminal over BTSerial
-  SerialandBT("Connection Successful");
+  /* SerialandBT("Connection Successful"); */
   delay(100);
   floattostring();
   delay(100);
