@@ -206,7 +206,7 @@ void loop()
   delay(100);
   floattostring();
   delay(100);
-  debugCalibrateAmps(); // only needed for manual calibration of sensor
+  debugCalibrateAmps(); // only needed for manual calibration of HalEffect Sensorsensor
   //debugf("Going to sleep now");
   delay(100);
 }

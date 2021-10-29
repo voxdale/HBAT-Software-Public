@@ -1,11 +1,13 @@
 /*
 asyncserver.cpp - HBAT asyncserver library
  Copyright (c) 2021 Zacariah Austin Heim.
+
+ File is inherently in Debug Mode. Change #define DEBUG to 0 to disable 
  */
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG == 1
 #define debug(x) Serial.print(x)
@@ -18,8 +20,8 @@ asyncserver.cpp - HBAT asyncserver library
 #define debugf(x)
 #endif
 
-const char* ssid = "";
-const char* password =  "";
+const char* ssid = " "; //SSID of your network
+const char* password =  " "; //password of your network
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
