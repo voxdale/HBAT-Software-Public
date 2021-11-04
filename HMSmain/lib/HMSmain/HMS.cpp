@@ -1,4 +1,3 @@
-#include <BluetoothSerial.h>
 #include <Wire.h>
 #include <ACS712.h>
 #include <Adafruit_SHT31.h>
@@ -10,7 +9,7 @@ uint8_t _amppin = 18;
 ACS712 ACS(_amppin, 5.0, 4095, 100);
 
 // ESP 32 example (requires resistors to step down the logic voltage)
-//ACS712  ACS(25, 5.0, 4095, 185);
+// ACS712  ACS(25, 5.0, 4095, 185);
 
 int voltageValues[10];
 
@@ -51,49 +50,49 @@ float *HMS::readSensAndCondition()
     return sval;
 }
 
-//if (input_voltage < 0.50 && input_voltage >= 0.00 )
+// if (input_voltage < 0.50 && input_voltage >= 0.00 )
 //{
-//digitalWrite(2, HIGH);
-//delay (30);
-//digitalWrite(2, LOW);
-//delay (30);
-//}
-//else if (input_voltage < 1.00 && input_voltage >= 0.50)
+// digitalWrite(2, HIGH);
+// delay (30);
+// digitalWrite(2, LOW);
+// delay (30);
+// }
+// else if (input_voltage < 1.00 && input_voltage >= 0.50)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 1.50 && input_voltage >= 1.00)
+//  DO STUFF
+// }
+// else if (input_voltage < 1.50 && input_voltage >= 1.00)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 2.00 && input_voltage >= 1.50)
+//  DO STUFF
+// }
+// else if (input_voltage < 2.00 && input_voltage >= 1.50)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 2.50 && input_voltage >= 2.00)
+//  DO STUFF
+// }
+// else if (input_voltage < 2.50 && input_voltage >= 2.00)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 3.00 && input_voltage >= 2.50)
+//  DO STUFF
+// }
+// else if (input_voltage < 3.00 && input_voltage >= 2.50)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 3.50 && input_voltage >= 3.00)
+//  DO STUFF
+// }
+// else if (input_voltage < 3.50 && input_voltage >= 3.00)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 4.00 && input_voltage >= 3.50)
+//  DO STUFF
+// }
+// else if (input_voltage < 4.00 && input_voltage >= 3.50)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 4.50 && input_voltage >= 4.00)
+//  DO STUFF
+// }
+// else if (input_voltage < 4.50 && input_voltage >= 4.00)
 //{
-// DO STUFF
-//}
-//else if (input_voltage < 5.00 && input_voltage >= 4.50)
+//  DO STUFF
+// }
+// else if (input_voltage < 5.00 && input_voltage >= 4.50)
 //{
-// DO STUFF
-//}
+//  DO STUFF
+// }
 
 // ACS712 5A  uses 185 mV per A
 // ACS712 20A uses 100 mV per A
@@ -105,9 +104,9 @@ void HMS::setupSensor()
 
 float HMS::*readAmps()
 {
-    int mA = ACS.mA_DC();
-    String Amps = String(mA);
-    //SerialandBT(Amps);
+    String ampaverage = "";
+    int readmA = ACS.mA_DC();
+    String Amps = String(readmA);
     Serial.println("," + Amps);
 }
 
@@ -133,7 +132,7 @@ void HMS::calibrateAmps()
             break;
         case '/':
             ACS.setmVperAmp(ACS.getmVperAmp() / 1.05);
-            //SerialBT.print("," + ACS.getmVperAmp());
+            // SerialBT.print("," + ACS.getmVperAmp());
             break;
         default:
             Serial.printf("No input detected");

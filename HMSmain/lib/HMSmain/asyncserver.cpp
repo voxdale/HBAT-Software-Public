@@ -11,7 +11,7 @@ asyncserver.cpp - HBAT asyncserver library
 
 #if DEBUG == 1
 #define debug(x) Serial.print(x)
-#define debugln(x) debugln(x)
+#define debugln(x) Serial.print(x)
 #define debugf(x) Serial.printf(x)
 
 #else

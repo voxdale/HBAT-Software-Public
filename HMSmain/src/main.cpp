@@ -5,7 +5,7 @@
 #include <Battery.h>
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG == 1
 #define debug(x) Serial.print(x)
@@ -23,8 +23,8 @@
 #define LED1 12
 #define LED2 9
 
-/* #define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
-/* #define TIME_TO_SLEEP 30    */ /* Time ESP32 will go to sleep (in seconds) */
+/* #define uS_TO_S_FACTOR 1000000 Conversion factor for micro seconds to seconds */
+/* #define TIME_TO_SLEEP 30  Time ESP32 will go to sleep (in seconds) */
 
 /* RTC_DATA_ATTR int bootCount = 0; */
 
@@ -126,7 +126,7 @@ Battery battery(1000, 3300, A0);
 void floattostring()
 {
   float *climatedata = Hum.ReadSensor();
-  char climateData[100];
+  char climateData[10];
   sprintf(climateData, "%3d, %3d", climatedata[0], climatedata[1]);
   /* SerialandBT(climateData); */
 
@@ -134,7 +134,7 @@ void floattostring()
   float *readvoltage = HMSmain.readSensAndCondition();
   for (int i = 0; i < sizeof(readvoltage); i++)
   {
-    char temp[100];
+    char temp[10];
     sprintf(temp, "%s, %3f", voltageaverage, readvoltage[i]);
     voltageaverage = temp;
   }
