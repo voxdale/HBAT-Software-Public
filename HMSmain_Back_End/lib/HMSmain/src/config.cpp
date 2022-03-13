@@ -1,4 +1,4 @@
-#include <config.hpp>
+#include "config.hpp"
 
 // save last "timestamp" the config has been saved
 auto last_config = 0;
@@ -6,10 +6,69 @@ auto last_config = 0;
 Config::Config(void)
 {
     last_config_change = false;
+    maxVoltage = 24;
+    maxTemp = 100;
 }
 
 Config::~Config(void)
 {
+    // Free the allocated memory
+    if (config.hostname)
+    {
+        freeStr(&config.hostname);
+    }
+    if (config.MQTTBroker)
+    {
+        freeStr(&config.MQTTBroker);
+    }
+    if (config.MQTTPort)
+    {
+        freeStr(&config.MQTTPort);
+    }
+    if (config.MQTTUser)
+    {
+        freeStr(&config.MQTTUser);
+    }
+    if (config.MQTTPass)
+    {
+        freeStr(&config.MQTTPass);
+    }
+    if (config.MQTTTopic)
+    {
+        freeStr(&config.MQTTTopic);
+    }
+    if (config.MQTTSetTopic)
+    {
+        freeStr(&config.MQTTSetTopic);
+    }
+    if (config.MQTTDeviceName)
+    {
+        freeStr(&config.MQTTDeviceName);
+    }
+    if (config.NTPTIME)
+    {
+        freeStr(&config.NTPTIME);
+    }
+    if (config.NTPTIMEOFFSET)
+    {
+        freeStr(&config.NTPTIMEOFFSET);
+    }
+    if (config.WIFISSID)
+    {
+        freeStr(&config.WIFISSID);
+    }
+    if (config.WIFIPASS)
+    {
+        freeStr(&config.WIFIPASS);
+    }
+    if (config.MDNS)
+    {
+        freeStr(&config.MDNS);
+    }
+    if (config.DHCPCHECK)
+    {
+        freeStr(&config.DHCPCHECK);
+    }
 }
 
 void Config::CreateDefaultConfig()
@@ -36,17 +95,79 @@ void Config::CreateDefaultConfig()
     config.WIFIPASS = NULL;
     config.MQTTConnectedState = false;
     config.configData = "";
+    config.NTPTIME = NULL;
+    config.NTPTIMEOFFSET = NULL;
+    config.MDNS = NULL;
+    config.DHCPCHECK = NULL;
+    for (int i = 0; i < 5; i++)
+    {
+        config.relays[i] = false;
+    }
+    config.stack_humidity = 0;
+    config.stack_temp = 0;
+    config.stack_voltage = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        config.cell_temp[i] = 0;
+        config.cell_voltage[i] = 0;
+    }
 }
 
 // Initialize SPIFFS
-void Config::initSPIFFS()
+bool Config::initSPIFFS()
 {
-  if (!SPIFFS.begin(true))
+  if (!SPIFFS.begin(false))
   {
     Serial.println("An error has occurred while mounting SPIFFS");
+    return false;
   }
   Serial.println("SPIFFS mounted successfully");
+  return true;
 }
+
+// Read File from SPIFFS
+String Config::readFile(fs::FS &fs, const char *path)
+{
+  SERIAL_DEBUG_ADDF("Reading file: %s\r\n", path);
+
+  File file = fs.open(path);
+  if (!file || file.isDirectory())
+  {
+    SERIAL_DEBUG_LN("[INFO]: Failed to open file for reading");
+    return String();
+  }
+
+  String fileContent;
+  while (file.available())
+  {
+    fileContent = file.readStringUntil('\n');
+    break;
+  }
+  return fileContent;
+}
+
+// Write file to SPIFFS
+void Config::writeFile(fs::FS &fs, const char *path, const char *message)
+{
+  SERIAL_DEBUG_ADDF("Writing file: %s\r\n", path);
+  delay(10);
+
+  File file = fs.open(path, FILE_WRITE);
+  if (!file)
+  {
+    SERIAL_DEBUG_LN("[INFO]: failed to open file for writing");
+    return;
+  }
+  if (file.print(message))
+  {
+    SERIAL_DEBUG_LN("[INFO]: file written");
+  }
+  else
+  {
+    SERIAL_DEBUG_LN("[INFO]: file write failed");
+  }
+}
+
 
 bool Config::loadConfig()
 {
@@ -135,7 +256,7 @@ bool Config::saveConfig()
     if (!last_config_change)
     {
         Serial.println("Config has not changed");
-        return true;
+        return false;
     }
     Serial.println("Saving Config");
     // create a json file from the config struct and save it using SPIFFs

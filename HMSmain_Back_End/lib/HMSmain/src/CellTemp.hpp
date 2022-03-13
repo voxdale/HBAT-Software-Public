@@ -5,14 +5,14 @@
 
 #ifndef CELLTEMP_h
 #define CELLTEMP_h
-#include <defines.hpp>
+#include "defines.hpp"
 
 class CellTemp
 {
 public:
     CellTemp(void);
     virtual ~CellTemp(void);
-    int freeRam();
+    uint32_t getfreeRam();
     void SetupSensors();
     void readAddresses(DeviceAddress deviceAddress);
     void printAddress(DeviceAddress deviceAddress);
@@ -23,7 +23,5 @@ public:
 private:
     int sensors_count;
 };
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_HMSMQTT)
 extern CellTemp Cell_Temp;
-#endif
 #endif

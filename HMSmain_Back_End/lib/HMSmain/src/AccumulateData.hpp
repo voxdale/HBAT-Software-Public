@@ -5,7 +5,7 @@
 
 #ifndef ACCUMULATEDATA_h
 #define ACCUMULATEDATA_h
-#include <defines.hpp>
+#include "defines.hpp"
 
 //#include <MemoryFree.h>
 
@@ -27,7 +27,5 @@ public:
 
 private:
 };
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_HMSMQTT)
 extern AccumulateData Accumulate_Data;
-#endif
 #endif
