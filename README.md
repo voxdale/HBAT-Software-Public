@@ -1,6 +1,11 @@
-# HBAT-Software Private repo
+<p align="center">
+   <img width="250px" height="120px" title="HBAT Logo" src="img/logo.png">
+</p>
+
 
 ---
+
+# HBAT-Software Private repo
 
 - [HBAT-Software Private repo](#hbat-software-private-repo)
 	- [Main Library](#main-library)
