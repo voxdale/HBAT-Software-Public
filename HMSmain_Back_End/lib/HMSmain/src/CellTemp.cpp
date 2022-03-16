@@ -1,19 +1,7 @@
-#include <CellTemp.h>
+#include "CellTemp.hpp"
 
 // Data wire is plugged into port 42 on the ESP32
 #define ONE_WIRE_BUS 42
-#define DEBUG 1
-
-#if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
-#define debugf(x) Serial.printf(x)
-
-#else
-#define debug(x)
-#define debugln(x)
-#define debugf(x)
-#endif
 
 CellTemp::CellTemp(void)
 {
@@ -101,11 +89,9 @@ void CellTemp::SetupSensors()
  * Parameters: None
  * Return: int - Free heap space
  ******************************************************************************/
-int CellTemp::freeRam()
+uint32_t CellTemp::getfreeRam()
 {
-    extern int __heap_start, *__brkval;
-    int v;
-    return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
+    return system_get_free_heap_size();
 }
 
 /******************************************************************************
@@ -153,3 +139,5 @@ float *CellTemp::ReadTempSensorData()
     }
     return cell_temp_sensor_results;
 }
+
+CellTemp Cell_Temp;

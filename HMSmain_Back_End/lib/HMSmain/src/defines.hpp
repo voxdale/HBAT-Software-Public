@@ -1,63 +1,61 @@
 /*
- defines.hpp - Purbright library
+ defines.hpp - HBAT library
  Copyright (c) 2021 Zacariah Austin Heim.
  */
 #ifndef DEFINES_hpp
 #define DEFINES_hpp
-#define VERSION "0.0.1"
-#define VERSION_DATE "2021-12-17"
 #if !(defined(ESP32))
 #error This code is intended to run on the ESP32 platform! Please check your Board setting.
 #endif
 #include <Arduino.h>
-#include <globaldebug.hpp>
+#include "globaldebug.hpp"
 #include <stdio.h>  /* printf, NULL */
 #include <stdlib.h> /* strtoul */
-#include <timedtasks.hpp>
+#include "timedtasks.hpp"
+#include <MD5.h>
 
 // IO
 #include <Wire.h>
-#include <i2cscan.hpp>
+#include "i2cscan.hpp"
 // FrontEnd
-#include <FrontEnd.hpp>
+#include "FrontEnd.hpp"
 // File System
 #include <SPIFFS.h>
 // Data stack
-#include <AccumulateData.hpp>
+#include "AccumulateData.hpp"
 #include <ACS712.h>
-#include <HMS.hpp>
-#include <Humidity.hpp>
-#include <celltemp.hpp>
-#include <HMSmqtt.hpp>
+#include "HMS.hpp"
+#include "Humidity.hpp"
+#include "celltemp.hpp"
 #include <ArduinoJson.h>
+#include <strTools.h>
+#include "config.hpp"               /* data Struct */
 // Humidity Sensors
 //#include <sfm3003.hpp>
-#include <Adafruit_SHT31.h>
 
 // Temp Sensors
-
 #include <PID_v1.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-// wifi definition
-#include <AsyncElegantOTA.h>
-#include <Wifi.h>
-#include <ESPAsync_WiFiManager.h>
-#include <HMSnetwork.hpp>
-#include <ESPmDNS.h>
-
-// define EEPROM settings
-// https://www.kriwanek.de/index.php/de/homeautomation/esp8266/364-eeprom-für-parameter-verwenden
+// wifi definitions
+#include "HMSnetwork.hpp"
 
 #define LED_BUILTIN 2
-#define DEFAULT_HOSTNAME "HBAT_HMS" // default hostname
-#define ENABLE_MQTT_SUPPORT 0       // allows integration in homeassistant/googlehome/mqtt
+
+#ifdef DEFAULT_HOSTNAME
+#pragma message STR(DEFAULT_HOSTNAME)
+#endif
+
+#ifdef PRODUCTION
+#pragma message STR(PRODUCTION)
+#endif
+
 #define maxCellCount 10             // max number of cells
-#include <config.hpp>               /* data Struct */
 
 /*######################## MQTT Configuration ########################*/
 #ifdef ENABLE_MQTT_SUPPORT
+#pragma message STR(ENABLE_MQTT_SUPPORT)
 // these are deafault settings which can be changed in the web interface "settings" page
 #define MQTT_ENABLED 1
 #define MQTT_SECURE_ENABLED 0
@@ -68,7 +66,8 @@
 #define MQTT_MAX_TRANSFER_SIZE 1024
 // MQTT includes
 #include <PubSubClient.h>
-extern WiFiClient espClient;
+#include "HMSmqtt.hpp"
+
 extern PubSubClient mqttClient;
 
 // Variables for MQTT
@@ -81,7 +80,6 @@ extern const String MQTT_HOMEASSISTANT_TOPIC_SET; // MQTT Topic to subscribe to 
 extern const String MQTT_HOMEASSISTANT_TOPIC;     // MQTT Topic to Publish to for state and config (Home Assistant);
 extern String MQTT_DEVICE_NAME;                   // MQTT Topic to Publish to for state and config (Any MQTT Broker)
 extern bool mqttProcessing;
-
 #endif
 /*###################### MQTT Configuration END ######################*/
 
@@ -95,35 +93,22 @@ extern HMS HMSmain;
 extern Humidity Hum;
 extern CellTemp Cell_Temp;
 extern StaticJsonDocument<1000> Doc;
-extern Adafruit_SHT31 sht31;
-extern Adafruit_SHT31 sht31_2;
 extern FrontEnd Front_End;
-extern DNSServer dnsServer;
-
-// Tasks for the Task Scheduler
-/* extern TaskHandle_t runserver;
-extern TaskHandle_t accumulatedata; */
+extern WiFiClient espClient;
 
 // Variables
 extern const char *mqtt_mDNS_clientId;
 extern char mDNS_hostname[4];
 
-extern int mqttPort;
-
 extern int period;
 extern unsigned long time_now;
 extern bool Charge_State;
 // Wifi Variables
-//  Set these to your desired credentials.
-extern char *ssid;
-extern char *password;
 extern bool wifiMangerPortalRunning;
 extern bool wifiConnected;
 
-// IO
-
 // Globally available functions
 char *StringtoChar(String inputString);
-char *MQTTCreateHostName(const char *hostname, const char *def_host);
+char *appendChartoChar(const char *hostname, const char *def_host);
 
 #endif

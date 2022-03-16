@@ -5,7 +5,7 @@
 
 #ifndef FRONTEND_h
 #define FRONTEND_h
-#include <defines.hpp>
+#include "defines.hpp"
 
 class FrontEnd
 {
@@ -21,11 +21,9 @@ public:
     void updateCurrentData();
     uint8_t GetChipID();
     void loadConfig();
+    void setupFrontEnd();
 
     // Variables
-
-    int maxVoltage;
-    int maxTemp;
 
     String NewMQTTIP;
     String NewMQTTPass;
@@ -40,7 +38,6 @@ public:
 
 private:
 };
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_HMSMQTT)
+
 extern FrontEnd Front_End;
-#endif
 #endif

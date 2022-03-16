@@ -7,12 +7,15 @@
 #define HMSNETWORK_hpp
 
 #include "defines.hpp"
+#include "SecureOTA.hpp"
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
-#include <strTools.h>
+#include <AsyncElegantOTA.h>
 
+extern AsyncWebServer server;
+extern WiFiClient espClient;
 
 class HMSnetwork
 {
@@ -31,16 +34,16 @@ public:
     void loadConfig();
     void SetupServer();
     void CheckNetworkLoop();
-    void writeFile(fs::FS &fs, const char * path, const char * message);
-    String readFile(fs::FS &fs, const char *path);
-    //String processor(const String& var);
+    void SetupWifiScan();
+    bool LoopWifiScan();
+    void setupOTA();
+    void loopOTA();
 
     // variables
+    int maxVoltage;
+    int maxTemp;
 private:
 };
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NETWORK)
 extern HMSnetwork network;
-#endif
-
 #endif

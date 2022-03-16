@@ -4,7 +4,7 @@
 #include <blinker.h>
 /* #include <iostream>     // std::cout
 #include <functional>   // std::bind */
-#include <defines.hpp> // std::thread
+#include "defines.hpp" // std::thread
 
 class TimedTasks : public timeObj,
                    public idler
@@ -17,6 +17,7 @@ public:
   void setCallback(void (*funct)(void));
   void setSeconds(float seconds);
   virtual void idle(void);
+  void updateCurrentData();
 
   void (*callback)(void);
   void SetupTimers();
@@ -26,6 +27,7 @@ public:
   timeObj ReadTimer3_10;
   timeObj ReadTimer2;
   timeObj ReadTimer3;
+  timeObj ReadTimer_10_2;
 };
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_TIMEDTASKS)

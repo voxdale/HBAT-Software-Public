@@ -1,5 +1,5 @@
 /*
- config.h - Purbright library
+ config.hpp - HBAT library
  Copyright (c) 2021 Zacariah Austin Heim.
 */
 
@@ -16,30 +16,40 @@ public:
     typedef struct Config_t
     {
         // Variables
-        char* hostname;
+        char *hostname;
         uint8_t MQTTEnabled;
-        char* MQTTPort;        // Port to use for unsecured MQTT
+        char *MQTTPort;           // Port to use for unsecured MQTT
         uint16_t MQTTPort_Secure; // port to use if Secured MQTT is enabled
-        char* MQTTUser;
-        char* MQTTPass;
-        char* MQTTTopic;
-        char* MQTTSetTopic;
-        char* MQTTDeviceName;
+        char *MQTTUser;
+        char *MQTTPass;
+        char *MQTTTopic;
+        char *MQTTSetTopic;
+        char *MQTTDeviceName;
         uint8_t last_mqtt_connect_attempt;
         uint8_t last_mqtt_publish_attempt;
         unsigned long lastMillis;
-        char* clientIP;
+        char *clientIP;
         bool MQTTSecureState;
-        char* MQTTBroker;
+        char *MQTTBroker;
         long lastMsg;
-        char* msg;
+        char *msg;
         int value;
-        char* WIFISSID;
-        char* WIFIPASS;
+        char *WIFISSID;
+        char *WIFIPASS;
         bool MQTTConnectedState;
+        char *NTPTIME;
+        char *NTPTIMEOFFSET;
+        char *MDNS;
+        char *DHCPCHECK;
         String configData;
+        boolean relays[5];
+        float stack_humidity;
+        float stack_temp;
+        float stack_voltage;
+        float cell_temp[10];
+        float cell_voltage[10];
     } configData_t;
-    
+
     bool loadConfig();
     // trigger a config write/commit
     bool setConfigChanged();
@@ -54,15 +64,18 @@ public:
     void setWiFiConf(String ssid, String password);
     void InitDataStruct();
     void CreateDefaultConfig();
-    void initSPIFFS();
+    bool initSPIFFS();
+    String readFile(fs::FS &fs, const char *path);
+    void writeFile(fs::FS &fs, const char *path, const char *message);
     configData_t config;
     configData_t default_cfg;
 
     // save last "timestamp" the config has been saved
     bool last_config_change;
+    // Variables
+    int maxVoltage;
+    int maxTemp;
 };
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_CONFIG)
 extern Config cfg;
-#endif
 #endif
 // EOF
